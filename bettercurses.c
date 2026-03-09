@@ -78,8 +78,13 @@ void cursor_visibility(bool value)
 	else {printf("%s?25l",OCTAL_ESC);}
 }
 
-
-void init_partial_screen(int y, bool restore)
+// rant below
+// Temporarily commented out. Implementing turned out to be a lot harder,
+// Due to some terminals not accepting an older escape sequence to save only the screen
+// We will have to manually track the cursor and delete the newlines made by partial screen. 
+// This is a PAIN IN THE ASS
+// hence why i am not doing it yet and trying to get a functional state first.
+/* void init_partial_screen(int y, bool restore)
 {
     partial_screen = true;
     partial_maxy = internal_maxy - y;
@@ -87,9 +92,9 @@ void init_partial_screen(int y, bool restore)
     printf("%s%dA", OCTAL_ESC, y);  // move cursor back up
     if (restore) printf("%s7", OCTAL_ESC_ALT);  // save position after scroll
 }
+*/
 
-
-int validate_coordinates(int x, int y)
+static int validate_coordinates(int x, int y)
 {
 	if (x < internal_maxx && y < internal_maxy) {return 1;}
 	else {return 0;}
@@ -208,17 +213,4 @@ char* get_key()
 {
 	if (resize_check()) {return "RESIZE";}
 	else {return 0;}
-}
-
-
-int main()
-{
-	getmaxyx();
-	init_fullscreen();
-	cursor_mode(2, true);
-	add_int(0, 0, 7);
-	// Keep program running until enter for testing
-	char X = getchar();
-	exit_cleanup();
-return 0;
 }

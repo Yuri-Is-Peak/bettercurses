@@ -49,6 +49,8 @@ static int internal_maxy;
 static bool partial_screen;
 static volatile sig_atomic_t resize_flag = 0;
 
+
+
 void init_fullscreen()
 {
 	partial_screen = false;
@@ -96,7 +98,7 @@ void cursor_visibility(bool value)
 }
 */
 
-static int validate_coordinates(int x, int y)
+static int internal_validate_coordinates(int x, int y)
 {
 	if (x < internal_maxx && y < internal_maxy) {return 1;}
 	else {return 0;}
@@ -109,6 +111,14 @@ void move_cursor(int x, int y)
 	y++;
 	printf("%s%d;%dH",OCTAL_ESC,y,x);
 }
+
+
+void internal_move_cursor(int x, int y)
+{
+	printf("%s%d;%dH",OCTAL_ESC,y,x);
+}
+
+
 
 
 /* 1: block blinking
@@ -141,7 +151,7 @@ void add_int(int x, int y, int num)
 	y++;
 	x++;
 	printf("%s7",OCTAL_ESC_ALT);
-	move_cursor(x,y);
+	internal_move_cursor(x,y);
 	printf("%d",num);
 	printf("%s8",OCTAL_ESC_ALT);
 }
@@ -152,7 +162,7 @@ void add_float(int x, int y, float flt)
 	y++;
 	x++;
 	printf("%s7",OCTAL_ESC_ALT);
-	move_cursor(x,y);
+	internal_move_cursor(x,y);
 	printf("%f",flt);
 	printf("%s8",OCTAL_ESC_ALT);
 }
@@ -163,7 +173,7 @@ void add_str(int x, int y, char text[])
 	y++;
 	x++;
 	printf("%s7",OCTAL_ESC_ALT);
-	move_cursor(x,y);
+	internal_move_cursor(x,y);
 	printf("%s",text);
 	printf("%s8",OCTAL_ESC_ALT);
 }
@@ -174,7 +184,7 @@ void add_colored_str(int x, int y, char text[], int red, int green, int blue)
 	y++;
 	x++;
 	printf("%s7",OCTAL_ESC_ALT);
-	move_cursor(x,y);
+	internal_move_cursor(x,y);
 	printf("%s38;2;%d;%d;%dm",OCTAL_ESC,red,green,blue);
 	printf("%s",text);
 
@@ -200,9 +210,7 @@ void exit_cleanup()
 	printf("%s0 q",OCTAL_ESC);
 	// echo_input(true)
 	cursor_visibility(true);
-	// kills the signal handling the resizing
-	signal(SIGWINCH, SIG_DFL);
-    fflush(stdout);  // add this as the very last thing
+	signal(SIGWINCH, SIG_DFL); 	// kills the signal handling the resizing
 }
 
 

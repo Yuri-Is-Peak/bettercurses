@@ -1,3 +1,4 @@
+#include "bettercurses.h"
 #include <asm-generic/ioctls.h>
 #include <signal.h>
 #include <stdio.h>
@@ -51,6 +52,7 @@ static volatile sig_atomic_t resize_flag = 0;
 void init_fullscreen()
 {
 	partial_screen = false;
+	getmaxyx();
 	printf("%s%s",OCTAL_ESC,SAVE_SCR);
 }
 
@@ -103,6 +105,8 @@ static int validate_coordinates(int x, int y)
 
 void move_cursor(int x, int y)
 {
+	x++;
+	y++;
 	printf("%s%d;%dH",OCTAL_ESC,y,x);
 }
 
@@ -154,7 +158,7 @@ void add_float(int x, int y, float flt)
 }
 
 
-void add_str(char text[], int x, int y)
+void add_str(int x, int y, char text[])
 {
 	y++;
 	x++;
@@ -165,7 +169,7 @@ void add_str(char text[], int x, int y)
 }
 
 
-void add_colored_str(char text[], int x, int y, int red, int green, int blue)
+void add_colored_str(int x, int y, char text[], int red, int green, int blue)
 {
 	y++;
 	x++;
@@ -190,6 +194,7 @@ void exit_cleanup()
 	}
 	else 
 	{
+		// TO FIX
 		printf("%s8",OCTAL_ESC_ALT);
 	}
 	printf("%s0 q",OCTAL_ESC);

@@ -1,3 +1,15 @@
+# In the middle of a rewrite right now.
+
+
+
+
+
+
+
+
+
+
+
 # bettercurses
 bettercurses is an attempt at making an easier to use option for making cli's similar to the ncurses library. It provides an improvement over ncurses in the following areas:
 ### Easy color support

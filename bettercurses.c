@@ -1,14 +1,29 @@
 /*
-todo
+##########################
+###       TODO         ###
+##########################
+//
+INTERN 
+// 			   NOTDONE
+########################################
+initialize_buffer(char* buf, int size)
+resize_buffer(char* buf int addsize)
 
 
+//				DONE
+########################################
+add_debug_print(char* err)
+getmaxyx()
 
 
+USR API
+//				NOTDONE
+########################################
 
 
-
-
-
+//				DONE
+########################################
+bcurses_getmaxyx(int* maxx, int* maxy)
 
 
 */
@@ -46,14 +61,23 @@ todo
  * OCTAL_ESC_ALT8 to load the saved cursor pos */
 
 
-struct dimensions 
+static struct dimensions 
 {
 	int maxx;
 	int maxy;
 };
 
-struct dimensions intern;
 
+static struct buffer 
+{
+	char* pointer;
+	int capacity;
+	int len;
+};
+
+struct dimensions intern;
+struct buffer errorlist;
+struct buffer canvas;
 
 
 
@@ -119,7 +143,6 @@ int main()
 	printf("%s",err_list);
 	return 0;
 }
-
 
 
 // not used yet

@@ -1,6 +1,21 @@
-#include "bettercurses.h"
+/*
+todo
+
+
+
+
+
+
+
+
+
+
+
+*/
+
 #include <asm-generic/ioctls.h>
 #include <signal.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdbool.h>
@@ -31,23 +46,87 @@
  * OCTAL_ESC_ALT8 to load the saved cursor pos */
 
 
+struct dimensions 
+{
+	int maxx;
+	int maxy;
+};
+
+struct dimensions intern;
+
+
+
+
+// temp global
+char err_list[1000];
+
+
+
+/*##################
+ *##  INTERNAL    ##
+ *################## */
+
+void getmaxyx()
+{
+	// Updates the global variables for values
+	struct winsize max;
+    ioctl(0, TIOCGWINSZ , &max);
+	intern.maxy = max.ws_row;
+	intern.maxx = max.ws_col;
+}
+
+
+void add_debug_print(char* err)
+{
+	strcat(err_list, err);
+}
+
+
+void initialize_buffer()
+{
+	// Initialize initial buffer which should be enough for most things
+	// Make it expand later but for now fixed size.
+}
 
 
 
 
 
+/*#########################
+ *##      USER API      ##
+ *######################### */
+
+// Naming: These functions must be prefixed with "bcurses_" for organization
+
+void bcurses_getmaxyx(int* usr_maxx, int* usr_maxy)
+{
+	// Updates the global variables for values
+	struct winsize max;
+    ioctl(0, TIOCGWINSZ , &max);
+	*usr_maxy = max.ws_row;
+	*usr_maxx = max.ws_col;
+	intern.maxy = max.ws_row;
+	intern.maxx = max.ws_col;
+}
+
+
+// only debugging
+int main()
+{
+	add_debug_print("this is an error");
+	getmaxyx();
+	printf("%d  %d",intern.maxx,intern.maxy);
+	printf("%s",err_list);
+	return 0;
+}
 
 
 
-
-
-
-
-
-
-
-
-
+// not used yet
+void runtime_update()
+{
+	getmaxyx();
+}
 
 
 

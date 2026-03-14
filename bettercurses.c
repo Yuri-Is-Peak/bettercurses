@@ -82,8 +82,8 @@ typedef struct {
 		} screen;
 
 	struct {
-		bool fullscreen;
-		bool partial_screen;
+		bool fullscreen = false;
+		bool partial_screen = false;
 	} flag_list;
 	
 } ScreenState;
@@ -99,8 +99,8 @@ void getmaxyx()
 	// Updates the global variables for values
 	struct winsize max;
     ioctl(0, TIOCGWINSZ , &max);
-	main.dimensions.maxy = max.ws_row;
-	intern.maxx = max.ws_col;
+	mainscr->dimensions.maxy = max.ws_row;
+	mainscr->dimensions.maxx = max.ws_col;
 }
 
 
@@ -126,16 +126,32 @@ int bcurses_init_screen()
 	bool init_success;
 	// Initialize global tracking
 	if (mainscr == NULL)
-		{mainscr = malloc(sizeof(ScreenState)); init_success = true;}
-	else 
-		{init_success = false;}
-	if (init_success == true) 
 		{
-			getmaxyx();
-			mainscr->screen.pointer = malloc();
-
+		mainscr = malloc(sizeof(ScreenState));
+		if (mainscr == NULL) {init_success = false;}
+		else {init_success = true;}
 		}
 
+	else 
+		{init_success = false;}
+
+	if (init_success == true) 
+		{
+			getmaxyx(); // update the dimensions before using them
+
+			// Allocate memory for tracking and update the things that we need to
+			mainscr->screen.pointer = malloc(sizeof(char)*mainscr->dimensions.maxy*16*mainscr->dimensions.maxx);
+			mainscr->screen.capacity = sizeof(char)*mainscr->dimensions.maxy*16*mainscr->dimensions.maxx;
+			mainscr->err_list.pointer = malloc(sizeof(char)*100);
+			mainscr->err_list.capacity = sizeof(char)*100;
+
+			// set flag default
+			bool flag_default = false;
+			mainscr->flag_list.fullscreen = flag_default;
+			mainscr->flag_list.partial_screen = flag_default;
+		}
+
+	return init_success;
 }
 
 
@@ -151,6 +167,13 @@ void bcurses_getmaxyx(int* usr_maxx, int* usr_maxy)
 }
 
 
+void bcurses_destroy_scr() 
+{
+	free(mainscr->screen.pointer);
+	free(mainscr->err_list.pointer);
+	free(mainscr);
+	mainscr = NULL;
+}
 
 
 // only debugging

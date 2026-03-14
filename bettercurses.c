@@ -197,7 +197,9 @@ static void add_debug_print(char* err)
 
 void bcurses_refresh()
 {
-
+	write(STDOUT_FILENO,mainscr->changes.pointer,mainscr->changes.len);
+	memset(mainscr->changes.pointer, 0, mainscr->changes.len);
+	mainscr->changes.len = 0;
 }
 
 void bcurses_init_screen()
@@ -282,7 +284,7 @@ void bcurses_destroy_scr()
 // only debugging
 int main()
 {
-
+	bcurses_init_screen();
 	add_debug_print("this is an error");
 	getmaxyx();
 	return 0;

@@ -61,6 +61,7 @@ bcurses_getmaxyx(int* maxx, int* maxy)
  * OCTAL_ESC_ALT7 to save cursor pos
  * OCTAL_ESC_ALT8 to load the saved cursor pos */
 
+//#########################################
 // Global tracking for state
 typedef struct {
 	struct {
@@ -73,7 +74,12 @@ typedef struct {
 		int capacity; 
 		int len;
 		} err_list;
-
+	
+	struct {
+		char* pointer;
+		int capacity;
+		int len;
+	} changes;
 
 	struct {
 		char* pointer;
@@ -82,19 +88,21 @@ typedef struct {
 		} screen;
 
 	struct {
-		bool fullscreen = false;
-		bool partial_screen = false;
+		bool fullscreen;
+		bool partial_screen;
 	} flag_list;
 	
 } ScreenState;
 
 ScreenState* mainscr = NULL;
+//#########################################
+
 
 /*##################
  *##  INTERNAL    ##
  *################## */
 
-void getmaxyx()
+static void getmaxyx()
 {
 	// Updates the global variables for values
 	struct winsize max;
@@ -104,15 +112,37 @@ void getmaxyx()
 }
 
 
-void add_debug_print(char* err)
+static void add_change(char* text)
 {
-	strcat(errorlist.pointer, err);
+	if (mainscr->changes.capacity - mainscr->changes.len > strlen(text))
+	{
+		strcat(mainscr->changes.pointer, text);
+	}
+	else 
+	{
+		int i;
+		for (int i = 1; i + strlen(text) > mainscr->changes.capacity - mainscr->changes.len;)
+		{
+			i*=2;
+		}
+		char* temp_ptr = mainscr->changes.pointer;
+		mainscr->changes.pointer = realloc(mainscr->changes.pointer, i + mainscr->changes.capacity);
+		if (mainscr->changes.pointer == NULL)
+		{mainscr->changes.pointer = temp_ptr;} // Need to add debug later
+		else 
+		{
+			strcat(mainscr->changes.pointer, text);
+
+		}
+	}
 }
 
 
 
-
-
+static void add_debug_print(char* err)
+{
+	strcat;
+}
 
 
 /*#########################
@@ -121,10 +151,17 @@ void add_debug_print(char* err)
 
 // Naming: These functions must be prefixed with "bcurses_" for organization
 
-int bcurses_init_screen()
+
+void bcurses_refresh()
+{
+
+}
+
+void bcurses_init_screen()
 {
 	bool init_success;
-	// Initialize global tracking
+
+	// Initializes global tracking struct
 	if (mainscr == NULL)
 		{
 		mainscr = malloc(sizeof(ScreenState));
@@ -140,18 +177,29 @@ int bcurses_init_screen()
 			getmaxyx(); // update the dimensions before using them
 
 			// Allocate memory for tracking and update the things that we need to
+			// Initialize screen buffer
 			mainscr->screen.pointer = malloc(sizeof(char)*mainscr->dimensions.maxy*16*mainscr->dimensions.maxx);
 			mainscr->screen.capacity = sizeof(char)*mainscr->dimensions.maxy*16*mainscr->dimensions.maxx;
+			
+			// Initialize changes buffer
+			mainscr->changes.pointer = malloc(sizeof(char)*mainscr->dimensions.maxy*mainscr->dimensions.maxx);
+			mainscr->changes.capacity = sizeof(char)*mainscr->dimensions.maxy*mainscr->dimensions.maxx;
+
+			// Initialize error handling list
 			mainscr->err_list.pointer = malloc(sizeof(char)*100);
 			mainscr->err_list.capacity = sizeof(char)*100;
 
-			// set flag default
+			// set flag defaults
 			bool flag_default = false;
 			mainscr->flag_list.fullscreen = flag_default;
 			mainscr->flag_list.partial_screen = flag_default;
 		}
+}
 
-	return init_success;
+
+void bcurses_set_screen_mode()
+{
+
 }
 
 
@@ -162,8 +210,20 @@ void bcurses_getmaxyx(int* usr_maxx, int* usr_maxy)
     ioctl(0, TIOCGWINSZ , &max);
 	*usr_maxy = max.ws_row;
 	*usr_maxx = max.ws_col;
-	main.maxy = max.ws_row;
-	intern.maxx = max.ws_col;
+	mainscr->dimensions.maxy = max.ws_row;
+	mainscr->dimensions.maxx = max.ws_col;
+}
+
+
+void bcurses_move_cursor(int x, int y)
+{
+	
+}
+
+
+void bcurses_addstr(int x, int y, char* text)
+{
+	bcurses_move_cursor(x, y);
 }
 
 
@@ -179,17 +239,9 @@ void bcurses_destroy_scr()
 // only debugging
 int main()
 {
-	bcurses_init_fullscr();
-	initialize_buffer(errorlist);
+
 	add_debug_print("this is an error");
 	getmaxyx();
-	printf("%d  %d",intern.maxx,intern.maxy);
-	printf("%s",err_list);
 	return 0;
 }
-
-
-
-
-
 

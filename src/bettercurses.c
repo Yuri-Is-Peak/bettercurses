@@ -11,26 +11,30 @@ INTERN
 ########################################
 
 
+
 //				DONE
 ########################################
-add_debug_print(char* err)
-getmaxyx()
-add_change(char* text)
+void add_debug_print(char* err)
+void getmaxyx()
+void add_change(char* text)
 
 
 USR API
 //				NOTDONE
 ########################################
-bcurses_move_cursor
-bcurses_addstr
-bcurses_refresh
-bcurses_set_screen_mode
+
+
 
 //				DONE
 ########################################
-bcurses_getmaxyx(int* maxx, int* maxy)
-bcurses_init_screen()
-bcurses_destroy_scr()
+void bcurses_set_partial_screen(int lines)
+void bcurses_set_fullscreen()
+void bcurses_refresh()
+void bcurses_move_cursor(int x, int y)
+void bcurses_getmaxyx(int* maxx, int* maxy)
+void bcurses_init_screen()
+void bcurses_destroy_scr()
+void bcurses_addstr(int x, int y, char* text)
 
 */
 
@@ -43,6 +47,7 @@ bcurses_destroy_scr()
 #include <stdbool.h>
 #include <sys/ioctl.h>
 #include <string.h>
+#include <termios.h>
 
 #define OCTAL_ESC "\033["
 /* This code has a [
@@ -123,7 +128,7 @@ static void getmaxyx()
 }
 
 
-static void add_change(char* text)
+static int add_change(char* text)
 {
 	if (mainscr->changes.capacity - mainscr->changes.len > strlen(text))
 	{
@@ -148,13 +153,12 @@ static void add_change(char* text)
 
 		// Check for errors in reallocation
 		if (mainscr->changes.pointer == NULL)
-		{mainscr->changes.pointer = temp_ptr;} // Need to add debug later
+			{mainscr->changes.pointer = temp_ptr;} // Need to add debug later
 		else 
-		{
-			// Add to actual buffer (finally)
-			strcat(mainscr->changes.pointer, text);
-
-		}
+			{
+				strcat(mainscr->changes.pointer, text);  // finally add to the pointer
+				mainscr->changes.len += strlen(text);
+			}
 	}
 }
 
@@ -261,11 +265,13 @@ void bcurses_set_fullscreen()
 }
 
 
-void bcurses_set_partial_screen(int y, bool mode)
+void bcurses_set_partial_screen(int lines, bool mode)
 {
-	mainscr->partial_info.lines = y;
+	mainscr->partial_info.lines = lines;
+	mainscr->screen_mode.partial_screen = true;
+	if (mode) {mainscr->partial_info.restore_full = true;}
 
-	for (int i=0; i < y; i++)
+	for (int i=0; i < lines; i++)
 	{
 		add_change("\n");
 	}
@@ -323,8 +329,19 @@ void bcurses_destroy_scr()
 		add_change(OCTAL_ESC"?1049l");
 		bcurses_refresh();
 	}
-	else if (mainscr->screen_mode.partial_screen)
+	else if (mainscr->screen_mode.partial_screen && mainscr->partial_info.restore_full)
 	{
+		bcurses_move_cursor(mainscr->dimensions.maxx, mainscr->dimensions.maxy);
+		for (int i =0; i < mainscr->partial_info.lines; i++)
+		{
+			add_change(OCTAL_ESC"1M");
+		}
+		bcurses_move_cursor(10, 10);
+	/*	for (int i =0; i < mainscr->partial_info.lines; i++)
+		{
+			add_change(OCTAL_ESC_ALT" M");
+			bcurses_addstr(0, 0, "a");
+		} */
 
 		bcurses_refresh();
 	}
@@ -336,19 +353,46 @@ void bcurses_destroy_scr()
 }
 
 
+// TEMPORARY, tdoo TO MAKE IT WORK FOR DISABLING
+void enable_raw_mode()
+{
+    struct termios raw;
+    tcgetattr(STDIN_FILENO, &raw);        // get current settings
+    raw.c_lflag &= ~(ECHO | ICANON);     // disable echo and canonical mode
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+}
+
+void disable_raw_mode()
+{
+    struct termios cooked;
+    tcgetattr(STDIN_FILENO, &cooked);
+    cooked.c_lflag |= (ECHO | ICANON);   // re-enable echo and canonical mode
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &cooked);
+}
+
+
+
 // only debugging
 int main()
 {
 	bcurses_init_screen();
-	bcurses_set_fullscreen();
+	bcurses_set_partial_screen(4, true);
 	bcurses_refresh();
+	enable_raw_mode();
 
 	add_debug_print("this is an error");
 	bcurses_addstr(0, 0, "Hello world");
 	bcurses_refresh();
 
-	getchar();
-	bcurses_destroy_scr();
+	char x;
+	for (int i=0; i < 1;)
+	{
+		x = getchar();
+		if (x == 10) {bcurses_destroy_scr(); break;}
+		else {x = 0;}
+	}
+	disable_raw_mode();
 	return 0;
 }
+
 

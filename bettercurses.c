@@ -1,3 +1,6 @@
+
+// search for "tdoo" to find unfinished parts which need to get done
+
 /*
 ##########################
 ###       TODO         ###
@@ -124,6 +127,7 @@ static void add_change(char* text)
 {
 	if (mainscr->changes.capacity - mainscr->changes.len > strlen(text))
 	{
+		mainscr->changes.len += strlen(text);
 		strcat(mainscr->changes.pointer, text);
 	}
 	else 
@@ -201,11 +205,12 @@ static void add_debug_print(char* err)
 
 void bcurses_refresh()
 {
-	// TODO: Add tracking of the screen here too, but fine for now.
+	// tdoo: Add tracking of the screen here too, but fine for now.
 	write(STDOUT_FILENO,mainscr->changes.pointer,mainscr->changes.len);
 	memset(mainscr->changes.pointer, 0, mainscr->changes.len);
 	mainscr->changes.len = 0;
 }
+
 
 void bcurses_init_screen()
 {
@@ -282,7 +287,8 @@ void bcurses_getmaxyx(int* usr_maxx, int* usr_maxy)
 
 void bcurses_move_cursor(int x, int y)
 {
-	char* temp = "OCTAL_ESC";
+	char temp[20];
+	sprintf(temp, OCTAL_ESC"%d;%dH", y, x);
 	add_change(temp);
 }
 
@@ -296,7 +302,8 @@ void bcurses_addstr(int x, int y, char* text)
 		add_change(text);
 		add_change(OCTAL_ESC_ALT"8");
 	}
-	// TODO: make partial screen x n y be relative
+
+	// tdoo: make partial screen x n y be relative
 	else if (mainscr->screen_mode.partial_screen)
 	{
 		add_change(OCTAL_ESC_ALT"7");
@@ -316,7 +323,11 @@ void bcurses_destroy_scr()
 		add_change(OCTAL_ESC"?1049l");
 		bcurses_refresh();
 	}
+	else if (mainscr->screen_mode.partial_screen)
+	{
 
+		bcurses_refresh();
+	}
 
 	free(mainscr->screen.pointer);
 	free(mainscr->err_list.pointer);
@@ -329,11 +340,14 @@ void bcurses_destroy_scr()
 int main()
 {
 	bcurses_init_screen();
+	bcurses_set_fullscreen();
+	bcurses_refresh();
 
 	add_debug_print("this is an error");
 	bcurses_addstr(0, 0, "Hello world");
 	bcurses_refresh();
 
+	getchar();
 	bcurses_destroy_scr();
 	return 0;
 }

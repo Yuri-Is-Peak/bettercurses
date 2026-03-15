@@ -6,14 +6,13 @@
 INTERN 
 // 			   NOTDONE
 ########################################
-initialize_buffer(char* buf, int size)
-resize_buffer(char* buf int addsize)
 
 
 //				DONE
 ########################################
 add_debug_print(char* err)
 getmaxyx()
+add_change(char* text)
 
 
 USR API
@@ -94,8 +93,13 @@ typedef struct {
 	struct {
 		bool fullscreen;
 		bool partial_screen;
-	} flag_list;
-	
+	} screen_mode;
+
+	struct {
+		int lines;
+		bool restore_full;
+		} partial_info;
+
 } ScreenState;
 
 ScreenState* mainscr = NULL;
@@ -197,6 +201,7 @@ static void add_debug_print(char* err)
 
 void bcurses_refresh()
 {
+	// TODO: Add tracking of the screen here too, but fine for now.
 	write(STDOUT_FILENO,mainscr->changes.pointer,mainscr->changes.len);
 	memset(mainscr->changes.pointer, 0, mainscr->changes.len);
 	mainscr->changes.len = 0;
@@ -236,14 +241,29 @@ void bcurses_init_screen()
 
 			// set flag defaults
 			bool flag_default = false;
-			mainscr->flag_list.fullscreen = flag_default;
-			mainscr->flag_list.partial_screen = flag_default;
+			mainscr->screen_mode.fullscreen = flag_default;
+			mainscr->screen_mode.partial_screen = flag_default;
 		}
 }
 
 
-void bcurses_set_screen_mode()
+void bcurses_set_fullscreen()
 {
+	{
+		mainscr->screen_mode.fullscreen = true;
+		add_change(OCTAL_ESC"?1049h");
+	}
+}
+
+
+void bcurses_set_partial_screen(int y, bool mode)
+{
+	mainscr->partial_info.lines = y;
+
+	for (int i=0; i < y; i++)
+	{
+		add_change("\n");
+	}
 
 }
 
@@ -262,18 +282,42 @@ void bcurses_getmaxyx(int* usr_maxx, int* usr_maxy)
 
 void bcurses_move_cursor(int x, int y)
 {
-	
+	char* temp = "OCTAL_ESC";
+	add_change(temp);
 }
 
 
 void bcurses_addstr(int x, int y, char* text)
 {
-	bcurses_move_cursor(x, y);
+	if (mainscr->screen_mode.fullscreen)
+	{
+		add_change(OCTAL_ESC_ALT"7");
+		bcurses_move_cursor(x, y);
+		add_change(text);
+		add_change(OCTAL_ESC_ALT"8");
+	}
+	// TODO: make partial screen x n y be relative
+	else if (mainscr->screen_mode.partial_screen)
+	{
+		add_change(OCTAL_ESC_ALT"7");
+		bcurses_move_cursor(x, y);
+		add_change(text);
+		add_change(OCTAL_ESC_ALT"8");
+	}
+
 }
 
 
 void bcurses_destroy_scr() 
 {
+	if (mainscr->screen_mode.fullscreen)
+	{
+		// Resets the screen for fullscreen
+		add_change(OCTAL_ESC"?1049l");
+		bcurses_refresh();
+	}
+
+
 	free(mainscr->screen.pointer);
 	free(mainscr->err_list.pointer);
 	free(mainscr);
@@ -285,8 +329,12 @@ void bcurses_destroy_scr()
 int main()
 {
 	bcurses_init_screen();
+
 	add_debug_print("this is an error");
-	getmaxyx();
+	bcurses_addstr(0, 0, "Hello world");
+	bcurses_refresh();
+
+	bcurses_destroy_scr();
 	return 0;
 }
 

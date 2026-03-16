@@ -1,0 +1,5 @@
+- make partial screen work fully and restore correctly
+
+
+
+

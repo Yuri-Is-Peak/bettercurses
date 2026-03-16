@@ -33,7 +33,7 @@ void add_debug_print(char* err)
 		// i is declared outside of for loop so that it doesnt get discarded after loop ends
 		int i;
 		// double i until we get the required amount of size
-		for (int i = 1; i + strlen(err) > mainscr->err_list.capacity - mainscr->err_list.len;)
+		for (; i + strlen(err) > mainscr->err_list.capacity - mainscr->err_list.len;)
 		{
 			i*=2;
 		}

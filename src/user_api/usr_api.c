@@ -1,8 +1,8 @@
 #include <defs.h>
 #include <termio.h>
 #include <unistd.h>
-#include <intern_api.h>
-#include <shared_api.h>
+#include "intern_api.h"
+#include "shared_api.h"
 
 //#########################################
 /*#########################

@@ -1,203 +1,15 @@
-
-// search for "tdoo" to find unfinished parts which need to get done
-
-/*
-##########################
-###       TODO         ###
-##########################
-//
-INTERN 
-// 			   NOTDONE
-########################################
-
-
-
-//				DONE
-########################################
-void add_debug_print(char* err)
-void getmaxyx()
-void add_change(char* text)
-
-
-USR API
-//				NOTDONE
-########################################
-
-
-
-//				DONE
-########################################
-void bcurses_set_partial_screen(int lines)
-void bcurses_set_fullscreen()
-void bcurses_refresh()
-void bcurses_move_cursor(int x, int y)
-void bcurses_getmaxyx(int* maxx, int* maxy)
-void bcurses_init_screen()
-void bcurses_destroy_scr()
-void bcurses_addstr(int x, int y, char* text)
-
-*/
-
-#include <asm-generic/ioctls.h>
-#include <signal.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdbool.h>
-#include <sys/ioctl.h>
+#include <defs.h>
 #include <string.h>
-#include <termios.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <termio.h>
+#include <unistd.h>
 
-#define OCTAL_ESC "\033["
-/* This code has a [
- * some escape sequences do not have this. 
- * However most do. Having a [ is a lot more common.
- * But we still need the other version, albeit rarely
- * This is why there is a seperate macro for that. */
-#define OCTAL_ESC_ALT "\033"
-#define SAVE_SCR "?1049h"
-#define RESTORE_SCR "?1049l"
-#define VISIBLE_CURSOR "?25h"
-#define INVISIBLE_CURSOR "?25l"
 
-/* 1: block blinking
- * 2: block not blink 
- * 3: underline blink 
- * 4: underline not blink 
- * 5: blinking line 
- * 6: not blinking line */
-#define CURSOR_MODE " q"
-/* SAVE_CURSOR
- * OCTAL_ESC_ALT7 to save cursor pos
- * OCTAL_ESC_ALT8 to load the saved cursor pos */
-
-//#########################################
-// Global tracking for state
-typedef struct {
-	struct {
-		int maxx;
-		int maxy;
-		} dimensions;
-
-	struct {
-		char* pointer;
-		int capacity; 
-		int len;
-		} err_list;
-	
-	struct {
-		char* pointer;
-		int capacity;
-		int len;
-	} changes;
-
-	struct {
-		char* pointer;
-		int capacity; 
-		int len;
-		} screen;
-
-	struct {
-		bool fullscreen;
-		bool partial_screen;
-	} screen_mode;
-
-	struct {
-		int lines;
-		bool restore_full;
-		} partial_info;
-
-} ScreenState;
 
 ScreenState* mainscr = NULL;
+
 //#########################################
-
-
-/*##################
- *##  INTERNAL    ##
- *################## */
-
-static void getmaxyx()
-{
-	// Updates the global variables for values
-	struct winsize max;
-    ioctl(0, TIOCGWINSZ , &max);
-	mainscr->dimensions.maxy = max.ws_row;
-	mainscr->dimensions.maxx = max.ws_col;
-}
-
-
-static int add_change(char* text)
-{
-	if (mainscr->changes.capacity - mainscr->changes.len > strlen(text))
-	{
-		mainscr->changes.len += strlen(text);
-		strcat(mainscr->changes.pointer, text);
-	}
-	else 
-	{
-		// i is declared outside of for loop so that it doesnt get discarded after loop ends
-		int i;
-		// double i until we get the required amount of size
-		for (int i = 1; i + strlen(text) > mainscr->changes.capacity - mainscr->changes.len;)
-		{
-			i*=2;
-		}
-
-		// Backup pointer incase somehow fails
-		char* temp_ptr = mainscr->changes.pointer;
-
-		// Allocate the value we computed from the for loop
-		mainscr->changes.pointer = realloc(mainscr->changes.pointer, i + mainscr->changes.capacity);
-
-		// Check for errors in reallocation
-		if (mainscr->changes.pointer == NULL)
-			{mainscr->changes.pointer = temp_ptr;} // Need to add debug later
-		else 
-			{
-				strcat(mainscr->changes.pointer, text);  // finally add to the pointer
-				mainscr->changes.len += strlen(text);
-			}
-	}
-}
-
-
-
-static void add_debug_print(char* err)
-{
-	if (mainscr->err_list.capacity - mainscr->changes.len > strlen(err))
-	{
-		strcat(mainscr->err_list.pointer, err);
-	}
-	else 
-	{
-		// i is declared outside of for loop so that it doesnt get discarded after loop ends
-		int i;
-		// double i until we get the required amount of size
-		for (int i = 1; i + strlen(err) > mainscr->err_list.capacity - mainscr->err_list.len;)
-		{
-			i*=2;
-		}
-
-		// Backup pointer incase somehow fails
-		char* temp_ptr = mainscr->err_list.pointer;
-
-		// Allocate the value we computed from the for loop
-		mainscr->err_list.pointer = realloc(mainscr->err_list.pointer, i + mainscr->err_list.capacity);
-
-		// Check for errors in reallocation
-		if (mainscr->err_list.pointer == NULL)
-		{mainscr->err_list.pointer = temp_ptr;}
-		else 
-		{
-			// Add to actual buffer (finally)
-			strcat(mainscr->err_list.pointer, err);
-
-		}
-	}
-}
-
 
 
 /*#########################
@@ -216,7 +28,7 @@ void bcurses_refresh()
 }
 
 
-void bcurses_init_screen()
+int bcurses_init_screen()
 {
 	bool init_success;
 
@@ -253,6 +65,7 @@ void bcurses_init_screen()
 			mainscr->screen_mode.fullscreen = flag_default;
 			mainscr->screen_mode.partial_screen = flag_default;
 		}
+	return init_success;
 }
 
 
@@ -394,5 +207,6 @@ int main()
 	disable_raw_mode();
 	return 0;
 }
+
 
 

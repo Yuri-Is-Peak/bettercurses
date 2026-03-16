@@ -1,0 +1,10 @@
+-I./include
+-I./src/defs/
+-I./src/init/
+-I./src/module/
+-I./src/user_api/
+-I./src/shared_api/
+-I./src/internal_api/
+-Wall
+-Wextra
+-std=c11

@@ -1,6 +1,10 @@
 #include <defs.h>
 #include <stdlib.h>
 #include <intern_api.h>
+#include <shared_api.h>
+
+
+ScreenState* mainscr = NULL;
 
 
 int bcurses_init_screen()
@@ -41,5 +45,39 @@ int bcurses_init_screen()
 			mainscr->screen_mode.partial_screen = flag_default;
 		}
 	return init_success;
+}
+
+
+
+
+void bcurses_destroy_scr() 
+{
+	if (mainscr->screen_mode.fullscreen)
+	{
+		// Resets the screen for fullscreen
+		add_change(OCTAL_ESC"?1049l");
+		bcurses_refresh();
+	}
+	else if (mainscr->screen_mode.partial_screen && mainscr->partial_info.restore_full)
+	{
+		bcurses_move_cursor(mainscr->dimensions.maxx, mainscr->dimensions.maxy);
+		for (int i =0; i < mainscr->partial_info.lines; i++)
+		{
+			add_change(OCTAL_ESC"1M");
+		}
+		bcurses_move_cursor(10, 10);
+	/*	for (int i =0; i < mainscr->partial_info.lines; i++)
+		{
+			add_change(OCTAL_ESC_ALT" M");
+			bcurses_addstr(0, 0, "a");
+		} */
+
+		bcurses_refresh();
+	}
+
+	free(mainscr->screen.pointer);
+	free(mainscr->err_list.pointer);
+	free(mainscr);
+	mainscr = NULL;
 }
 

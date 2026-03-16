@@ -1,0 +1,26 @@
+This is a file listing how everything links together
+
+1.
+init.c imports:
+defs.h
+intern_api.h
+shared_api.h
+
+2.
+defs.h imports:
+nothing
+
+3.
+intern_api.c imports:
+defs.h
+
+4.
+shared_api.c imports:
+defs.h
+
+5. 
+usr_api.c imports:
+defs.h
+shared_api.h
+intern_api.h
+

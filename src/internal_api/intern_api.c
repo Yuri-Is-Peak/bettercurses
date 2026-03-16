@@ -18,39 +18,7 @@ void getmaxyx()
 }
 
 
-int add_change(char* text)
-{
-	if (mainscr->changes.capacity - mainscr->changes.len > strlen(text))
-	{
-		mainscr->changes.len += strlen(text);
-		strcat(mainscr->changes.pointer, text);
-	}
-	else 
-	{
-		// i is declared outside of for loop so that it doesnt get discarded after loop ends
-		int i;
-		// double i until we get the required amount of size
-		for (int i = 1; i + strlen(text) > mainscr->changes.capacity - mainscr->changes.len;)
-		{
-			i*=2;
-		}
 
-		// Backup pointer incase somehow fails
-		char* temp_ptr = mainscr->changes.pointer;
-
-		// Allocate the value we computed from the for loop
-		mainscr->changes.pointer = realloc(mainscr->changes.pointer, i + mainscr->changes.capacity);
-
-		// Check for errors in reallocation
-		if (mainscr->changes.pointer == NULL)
-			{mainscr->changes.pointer = temp_ptr;} // Need to add debug later
-		else 
-			{
-				strcat(mainscr->changes.pointer, text);  // finally add to the pointer
-				mainscr->changes.len += strlen(text);
-			}
-	}
-}
 
 
 

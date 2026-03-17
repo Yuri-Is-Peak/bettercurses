@@ -15,6 +15,10 @@
 #define VISIBLE_CURSOR "?25h"
 #define INVISIBLE_CURSOR "?25l"
 
+// add key macros
+
+
+
 /* 1: block blinking
  * 2: block not blink 
  * 3: underline blink 

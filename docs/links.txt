@@ -1,26 +1,26 @@
-This is a file listing how everything links together
+This is a file listing how everything links together and works.
 
-1.
-init.c imports:
-defs.h
-intern_api.h
-shared_api.h
+What all the files do:
+defs.h -
+contains macro definitions and the global struct used for tracking state
 
-2.
-defs.h imports:
-nothing
+init.c - 
+contains:
+init_screen()
+destroy_screen()
+↓
+serves as the file to have the initialization and cleanup logic. The usr api imports it and makes a wrapper around it
 
-3.
-intern_api.c imports:
-defs.h
 
-4.
-shared_api.c imports:
-defs.h
+internal_api.c-
+contains:
+add_change
+add_
+↓
 
-5. 
-usr_api.c imports:
-defs.h
-shared_api.h
-intern_api.h
+usr_api.c-
+contains:
+↓
+
+
 

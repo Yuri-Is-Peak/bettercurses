@@ -10,6 +10,8 @@
 #include "init.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 #include <termio.h>
 
 
@@ -63,6 +65,25 @@ void bcurses_add_str(int x, int y, char* text)
 }
 
 
+void bcurses_add_colored_str(int x, int y, char* text, CELL* cell)
+{
+	RGB fg;
+	RGB bg;
+	hex_to_rgb(cell->cell_fg, &fg);
+	hex_to_rgb(cell->cell_bg, &bg);
+	add_change(OCTAL_ESC_ALT " 7");
+	move_cursor(x, y);
+	char buf[32];
+	snprintf(buf, sizeof(buf), OCTAL_ESC"38;2;%d;%d;%dm", fg.red, fg.green, fg.blue);
+	add_change(buf);
+	snprintf(buf, sizeof(buf), OCTAL_ESC"48;2;%d;%d;%dm", bg.red, bg.green, bg.blue);
+	add_change(buf);
+	add_change(text);
+	add_change(OCTAL_ESC"0m");
+	add_change(OCTAL_ESC_ALT " 8");
+}
+
+
 void bcurses_move_cursor(int x, int y)
 {
 	move_cursor(x, y);
@@ -92,3 +113,7 @@ void bcurses_refresh()
 {
 	refresh();
 }
+
+
+
+

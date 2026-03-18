@@ -68,5 +68,19 @@ typedef struct {
 
 } ScreenState;
 
+
+typedef struct {
+	char* cell_fg;
+	char* cell_bg;
+} CELL;
+
+
+typedef struct {
+	int red;
+	int green;
+	int blue;
+} RGB;
+
+
 extern ScreenState* mainscr;
 

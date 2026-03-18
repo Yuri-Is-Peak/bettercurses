@@ -10,6 +10,12 @@
 #include <stdio.h>
 
 
+void hex_to_rgb(char* hex, RGB* color)
+{
+	sscanf(hex, "%02x%02x%02x", &color->red, &color->green, &color->blue);
+}
+
+
 void getmaxyx()
 {
 	// Updates the global variables for values

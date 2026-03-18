@@ -1,4 +1,4 @@
-- make partial screen work fully and restore correctly
+- make partial screen cleanup work properly
 
 
 

@@ -8,7 +8,7 @@ SRC = src/init/init.c \
 build/libbettercurses.a: $(SRC)
 	mkdir -p build
 	$(CC) $(CFLAGS) -c $(SRC)
-	ar rcs build/bettercurses.h *.o
+	ar rcs build/libbettercurses.o *.o
 	rm *.o
 
 clean:

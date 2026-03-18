@@ -3,6 +3,6 @@
 
 // Literally just init and destroy xd
 int init_screen();
-void destroy_scr(); 
+int destroy_scr(); 
 
 #endif

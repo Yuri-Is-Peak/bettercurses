@@ -15,8 +15,8 @@ void getmaxyx()
 	// Updates the global variables for values
 	struct winsize max;
     ioctl(0, TIOCGWINSZ , &max);
-	mainscr->dimensions.maxy = max.ws_row;
-	mainscr->dimensions.maxx = max.ws_col;
+	mainscr->dimensions.maxy = max.ws_row-1;
+	mainscr->dimensions.maxx = max.ws_col-1;
 }
 
 
@@ -65,7 +65,7 @@ void refresh()
 }
 
 
-int add_change(char* text)
+void add_change(char* text)
 {
 	if (mainscr->changes.capacity - mainscr->changes.len > strlen(text))
 	{
@@ -75,9 +75,9 @@ int add_change(char* text)
 	else 
 	{
 		// i is declared outside of for loop so that it doesnt get discarded after loop ends
-		int i;
+		size_t i;
 		// double i until we get the required amount of size
-		for (int i = 1; i + strlen(text) > mainscr->changes.capacity - mainscr->changes.len;)
+		while (i + strlen(text) > mainscr->changes.capacity - mainscr->changes.len)
 		{
 			i*=2;
 		}
@@ -103,7 +103,7 @@ int add_change(char* text)
 void move_cursor(int x, int y)
 {
 	char temp[30];
-	sprintf(temp, OCTAL_ESC"%d;%dH", y, x);
+	sprintf(temp, OCTAL_ESC"%d;%dH", y+1, x+1);
 	add_change(temp);
 }
 

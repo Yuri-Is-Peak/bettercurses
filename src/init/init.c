@@ -49,13 +49,17 @@ int init_screen()
 
 
 
-void destroy_scr() 
+int destroy_scr() 
 {
+	bool success = false;
+
 	if (mainscr->screen_mode.fullscreen)
 	{
 		// Resets the screen for fullscreen
 		add_change(OCTAL_ESC"?1049l");
 		refresh();
+		mainscr->screen_mode.fullscreen = false;
+		success = true;
 	}
 	else if (mainscr->screen_mode.partial_screen && mainscr->partial_info.restore_full)
 	{
@@ -64,18 +68,27 @@ void destroy_scr()
 		{
 			add_change(OCTAL_ESC"1M");
 		}
+		//
+		// PLACEHOLDER
 		move_cursor(10, 10);
-	/*	for (int i =0; i < mainscr->partial_info.lines; i++)
-		{
-			add_change(OCTAL_ESC_ALT" M");
-			addstr(0, 0, "a");
-		} */
-
+		// PLACEHOLDER
+		//
+		mainscr->screen_mode.partial_screen = false;
+		mainscr->partial_info.lines = 0;
+		mainscr->partial_info.restore_full = false;
 		refresh();
+		success = true;
+	}
+	else if (!mainscr->partial_info.restore_full)
+	{
+		mainscr->screen_mode.partial_screen = false;
+		mainscr->partial_info.lines = 0;
+		success = true;
 	}
 
 	free(mainscr->screen.pointer);
 	free(mainscr->err_list.pointer);
 	free(mainscr);
 	mainscr = NULL;
+	return success;
 }

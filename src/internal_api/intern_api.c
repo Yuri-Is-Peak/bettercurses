@@ -30,9 +30,9 @@ void debug_print(char* err)
 	else 
 	{
 		// i is declared outside of for loop so that it doesnt get discarded after loop ends
-		int i;
+		size_t i=mainscr->err_list.capacity;
 		// double i until we get the required amount of size
-		for (; i + strlen(err) > mainscr->err_list.capacity - mainscr->err_list.len;)
+		while (i + strlen(err) > mainscr->err_list.capacity - mainscr->err_list.len)
 		{
 			i*=2;
 		}
@@ -75,7 +75,7 @@ void add_change(char* text)
 	else 
 	{
 		// i is declared outside of for loop so that it doesnt get discarded after loop ends
-		size_t i;
+		size_t i=1;
 		// double i until we get the required amount of size
 		while (i + strlen(text) > mainscr->changes.capacity - mainscr->changes.len)
 		{

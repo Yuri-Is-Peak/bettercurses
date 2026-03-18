@@ -18,12 +18,13 @@
 //##################################//
 int bcurses_init_fullscreen() 
 {
-	bool success = false;
+	bool success = init_screen();
 
-	if (!mainscr->screen_mode.fullscreen && !mainscr->screen_mode.partial_screen) 
+	if (!mainscr->screen_mode.fullscreen && !mainscr->screen_mode.partial_screen && success) 
 	{
-		init_screen();
-		mainscr->screen_mode.partial_screen = true;
+		mainscr->screen_mode.fullscreen = true;
+		add_change(OCTAL_ESC"?1049h");
+		refresh();
 		success = true;
 	}
 
@@ -87,4 +88,7 @@ int bcurses_kill_scr()
 }
 
 
-
+void bcurses_refresh()
+{
+	refresh();
+}

@@ -27,16 +27,19 @@ int init_screen()
 
 			// Allocate memory for tracking and update the things that we need to
 			// Initialize screen buffer
-			mainscr->screen.pointer = malloc(sizeof(char)*mainscr->dimensions.maxy*16*mainscr->dimensions.maxx);
-			mainscr->screen.capacity = sizeof(char)*mainscr->dimensions.maxy*16*mainscr->dimensions.maxx;
+			/*mainscr->screen.pointer = calloc(mainscr->dimensions.maxx*mainscr->dimensions.maxy*16, sizeof(char)*mainscr->dimensions.maxx*mainscr->dimensions.maxy*16);
+			mainscr->screen.capacity = sizeof(char)*mainscr->dimensions.maxy*16*mainscr->dimensions.maxx;*/
 			
 			// Initialize changes buffer
-			mainscr->changes.pointer = malloc(sizeof(char)*mainscr->dimensions.maxy*mainscr->dimensions.maxx);
-			mainscr->changes.capacity = sizeof(char)*mainscr->dimensions.maxy*mainscr->dimensions.maxx;
+			size_t changes_size = mainscr->dimensions.maxy * mainscr->dimensions.maxx * 16;
+			mainscr->changes.pointer = calloc(changes_size, sizeof(char));
+			mainscr->changes.capacity = sizeof(char)*changes_size;
+			mainscr->changes.len =0;
 
 			// Initialize error handling list
-			mainscr->err_list.pointer = malloc(sizeof(char)*100);
-			mainscr->err_list.capacity = sizeof(char)*100;
+			mainscr->err_list.pointer = calloc(500, sizeof(char));
+			mainscr->err_list.capacity = 500;
+			mainscr->err_list.len=0;
 
 			// set flag defaults
 			bool flag_default = false;

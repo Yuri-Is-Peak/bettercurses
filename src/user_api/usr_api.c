@@ -65,7 +65,7 @@ void bcurses_add_str(int x, int y, char* text)
 }
 
 
-void bcurses_add_colored_str(int x, int y, char* text, CELL* cell)
+void bcurses_add_colored_cell(int x, int y, char* text, CELL* cell)
 {
 	RGB fg;
 	RGB bg;
@@ -81,6 +81,22 @@ void bcurses_add_colored_str(int x, int y, char* text, CELL* cell)
 	add_change(text);
 	add_change(OCTAL_ESC"0m");
 	add_change(OCTAL_ESC_ALT " 8");
+}
+
+
+void bcurses_add_colored_str(int x, int y, char* text, char* hex)
+{
+	RGB color;
+	hex_to_rgb(hex, &color);
+	add_change(OCTAL_ESC_ALT " 7");
+	move_cursor(x, y);
+	char buf[32];
+	snprintf(buf, sizeof(buf), OCTAL_ESC"38;2;%d;%d;%dm", color.red, color.green, color.blue);
+	add_change(buf);
+	add_change(text);
+	add_change(OCTAL_ESC"0m");
+	add_change(OCTAL_ESC_ALT " 8");
+
 }
 
 

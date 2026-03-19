@@ -1,6 +1,7 @@
 #ifndef BETTERCURSES
 #define BETTERCURSES
 
+#include <defs.h>
 #include "usr_api.h"
 int bcurses_init_fullscreen();
 int bcurses_init_partial_screen(int lines);

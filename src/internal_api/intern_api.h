@@ -1,7 +1,11 @@
 #ifndef BCURSES_INTERN_API
 #define BCURSES_INTERN_API
-#include "defs.h"
-
+//############################
+//			WARNING
+//############################
+// DO NOT IMPORT defs.h HERE OR ANY HEADER FILES. IT WILL FUCKING BREAK
+//############################
+//
 void getmaxyx();
 int add_change(char* text);
 void debug_print(char* err);

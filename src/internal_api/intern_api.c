@@ -69,6 +69,19 @@ void debug_print(char* err)
 }
 
 
+int eval_coords(int x, int y)
+{
+	if (x <= mainscr->dimensions.maxx &&
+		x >= 0 &&
+		y <= mainscr->dimensions.maxy
+		&& y >= 0	)
+	{
+		return 1;
+	}
+	else {return 0;}
+}
+
+
 void refresh()
 {
 	// tdoo: Add tracking of the screen here too, but fine for now.
@@ -116,7 +129,15 @@ void add_change(char* text)
 void move_cursor(int x, int y)
 {
 	char temp[30];
+	if (eval_coords(x, y))
+	{
 	sprintf(temp, OCTAL_ESC"%d;%dH", y+1, x+1);
 	add_change(temp);
+	}
+	else 
+	{
+		debug_print("err: writing text out of terminal bounds.");
+		exit(1);
+	}
 }
 

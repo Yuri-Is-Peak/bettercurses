@@ -1,53 +1,12 @@
 #include <defs.h>
 #include <stdlib.h>
 #include <intern_api.h>
-
+#include <stdio.h>
+#include <unistd.h>
 
 ScreenState* mainscr = NULL;
 
 
-int init_screen()
-{
-	bool init_success;
-
-	// Initializes global tracking struct
-	if (mainscr == NULL)
-		{
-		mainscr = malloc(sizeof(ScreenState));
-		if (mainscr == NULL) {init_success = false;}
-		else {init_success = true;}
-		}
-
-	else 
-		{init_success = false;}
-
-	if (init_success == true) 
-		{
-			getmaxyx(); // update the dimensions before using them
-
-			// Allocate memory for tracking and update the things that we need to
-			// Initialize screen buffer
-			/*mainscr->screen.pointer = calloc(mainscr->dimensions.maxx*mainscr->dimensions.maxy*16, sizeof(char)*mainscr->dimensions.maxx*mainscr->dimensions.maxy*16);
-			mainscr->screen.capacity = sizeof(char)*mainscr->dimensions.maxy*16*mainscr->dimensions.maxx;*/
-			
-			// Initialize changes buffer
-			size_t changes_size = mainscr->dimensions.maxy * mainscr->dimensions.maxx * 16;
-			mainscr->changes.pointer = calloc(changes_size, sizeof(char));
-			mainscr->changes.capacity = sizeof(char)*changes_size;
-			mainscr->changes.len =0;
-
-			// Initialize error handling list
-			mainscr->err_list.pointer = calloc(500, sizeof(char));
-			mainscr->err_list.capacity = 500;
-			mainscr->err_list.len=0;
-
-			// set flag defaults
-			bool flag_default = false;
-			mainscr->screen_mode.fullscreen = flag_default;
-			mainscr->screen_mode.partial_screen = flag_default;
-		}
-	return init_success;
-}
 
 
 
@@ -95,3 +54,63 @@ int destroy_scr()
 	mainscr = NULL;
 	return success;
 }
+
+
+
+void kill_program()
+{
+	char* buf = mainscr->err_list.pointer;
+	destroy_scr();
+	write(STDOUT_FILENO,buf, sizeof(buf));
+	exit(1);
+}
+
+
+int init_screen()
+{
+	bool init_success;
+	atexit(kill_program);
+	// Initializes global tracking struct
+	if (mainscr == NULL)
+		{
+		mainscr = malloc(sizeof(ScreenState));
+		if (mainscr == NULL) {init_success = false;}
+		else {init_success = true;}
+		}
+
+	else 
+		{init_success = false;}
+
+	if (init_success == true) 
+		{
+			getmaxyx(); // update the dimensions before using them
+
+			// Allocate memory for tracking and update the things that we need to
+			// Initialize screen buffer
+			/*mainscr->screen.pointer = calloc(mainscr->dimensions.maxx*mainscr->dimensions.maxy*16, sizeof(char)*mainscr->dimensions.maxx*mainscr->dimensions.maxy*16);
+			mainscr->screen.capacity = sizeof(char)*mainscr->dimensions.maxy*16*mainscr->dimensions.maxx;*/
+			
+			// Initialize changes buffer
+			size_t changes_size = mainscr->dimensions.maxy * mainscr->dimensions.maxx * 16;
+			mainscr->changes.pointer = calloc(changes_size, sizeof(char));
+			mainscr->changes.capacity = sizeof(char)*changes_size;
+			mainscr->changes.len =0;
+
+			// Initialize error handling list
+			mainscr->err_list.pointer = calloc(500, sizeof(char));
+			mainscr->err_list.capacity = 500;
+			mainscr->err_list.len=0;
+
+			// set flag defaults
+			bool flag_default = false;
+			mainscr->screen_mode.fullscreen = flag_default;
+			mainscr->screen_mode.partial_screen = flag_default;
+		}
+	return init_success;
+}
+
+
+
+
+
+

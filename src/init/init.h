@@ -9,5 +9,7 @@
 // Literally just init and destroy xd
 int init_screen();
 int destroy_scr(); 
+void kill_program();
 
 #endif
+

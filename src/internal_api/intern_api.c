@@ -12,7 +12,14 @@
 
 void hex_to_rgb(char* hex, RGB* color)
 {
-	sscanf(hex, "%02x%02x%02x", &color->red, &color->green, &color->blue);
+	if (hex[0] == '#')
+	{
+		sscanf(hex+1, "%02x%02x%02x", &color->red, &color->green, &color->blue);
+	}
+	else 
+	{
+		sscanf(hex, "%02x%02x%02x", &color->red, &color->green, &color->blue);
+	}
 }
 
 

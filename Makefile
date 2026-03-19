@@ -10,10 +10,17 @@ build/libbettercurses.a: $(SRC)
 	$(CC) $(CFLAGS) -c $(SRC)
 	ar rcs build/bettercurses.o *.o
 	rm *.o
+.PHONY: test test-hello test-colors
 
-test: build/bettercurses.o
-	$(CC) $(CFLAGS) examples/hello-world.c -I./include ./build/bettercurses.o -o build/test
-	./build/test
+test: test-hello test-colors
+
+test-hello: build/bettercurses.o
+	$(CC) $(CFLAGS) examples/hello-world.c -I./include ./build/bettercurses.o -o build/test-hello
+	./build/test-hello
+
+test-colors: build/bettercurses.o
+	$(CC) $(CFLAGS) examples/colors.c -I./include ./build/bettercurses.o -o build/test-colors
+	./build/test-colors
 
 clean:
 	rm -rf build/

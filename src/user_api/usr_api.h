@@ -15,6 +15,7 @@ void bcurses_getmaxyx(int *maxx, int *maxy);
 int bcurses_kill_scr();
 void bcurses_refresh();
 void bcurses_add_colored_cell(int x, int y, char* text, CELL* cell);
+void bcurses_add_colored_str(int x, int y, char* text, char* hex);
 
 #endif
 

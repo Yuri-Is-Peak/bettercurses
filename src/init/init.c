@@ -1,3 +1,4 @@
+#include "init.h"
 #include <defs.h>
 #include <stdlib.h>
 #include <intern_api.h>
@@ -15,6 +16,8 @@ ScreenState* mainscr = NULL;
 int destroy_scr() 
 {
 	bool success = false;
+	if (mainscr != NULL)
+	{
 
 	if (mainscr->screen_mode.fullscreen)
 	{
@@ -53,24 +56,31 @@ int destroy_scr()
 	free(mainscr->err_list.pointer);
 	free(mainscr);
 	mainscr = NULL;
+	}
 	return success;
 }
 
+
+void wrapper_exit() {destroy_scr();}
+
+
 void kill_program()
 {
+	if (mainscr != NULL)
+	{
 	char buf[mainscr->err_list.capacity];
-	strcat(buf, mainscr->err_list.pointer);
+	strcpy(buf, mainscr->err_list.pointer);
 	destroy_scr();
 	write(STDOUT_FILENO,buf, sizeof(buf));
-	exit(1);
+	}
 }
 
 
 
 int init_screen()
 {
-	bool init_success;
-	// Initializes global tracking struct
+	atexit(wrapper_exit);
+	bool init_success = false;
 	if (mainscr == NULL)
 		{
 		mainscr = malloc(sizeof(ScreenState));

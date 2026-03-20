@@ -3,6 +3,7 @@
 #include <intern_api.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 
 ScreenState* mainscr = NULL;
 
@@ -41,35 +42,34 @@ int destroy_scr()
 		refresh();
 		success = true;
 	}
-	else if (!mainscr->partial_info.restore_full)
+	else if (mainscr->screen_mode.partial_screen && !mainscr->partial_info.restore_full)
 	{
 		mainscr->screen_mode.partial_screen = false;
 		mainscr->partial_info.lines = 0;
 		success = true;
 	}
 
-	free(mainscr->screen.pointer);
+	free(mainscr->changes.pointer);
 	free(mainscr->err_list.pointer);
 	free(mainscr);
 	mainscr = NULL;
 	return success;
 }
 
-
-
 void kill_program()
 {
-	char* buf = mainscr->err_list.pointer;
+	char buf[mainscr->err_list.capacity];
+	strcat(buf, mainscr->err_list.pointer);
 	destroy_scr();
 	write(STDOUT_FILENO,buf, sizeof(buf));
 	exit(1);
 }
 
 
+
 int init_screen()
 {
 	bool init_success;
-	atexit(kill_program);
 	// Initializes global tracking struct
 	if (mainscr == NULL)
 		{
@@ -108,6 +108,7 @@ int init_screen()
 		}
 	return init_success;
 }
+
 
 
 

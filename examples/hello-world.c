@@ -17,7 +17,6 @@ int main()
 	bcurses_add_str(0, maxy, "press enter to quit");
 	bcurses_refresh();
 
-	getchar();
 	// MANDITORY
 	// reverts users terminal to previous state
 	bcurses_kill_scr();

@@ -1,3 +1,11 @@
+
+use crossterm::{
+    event::{self, Event, KeyCode},
+    terminal,
+};
+
+
+
 struct RGB  {
     red: u8,
     green: u8,
@@ -30,6 +38,13 @@ impl RGBCell  {
     }
 }
 
+struct RealCell  {
+    color: RGBCell,
+    key: char,
+}
+
+
+
 struct Screens  {
     real: Vec<RGBCell>,
     buf: Vec<RGBCell>,
@@ -52,11 +67,16 @@ struct Dimensions  {
 
 impl Dimensions  {
     fn new() -> Dimensions {
+
         let x = Dimensions {
-            maxx,
-            maxy,
+            maxx: 0,
+            maxy: 0,
         }
         x
+    }
+
+    fn max() -> Dimensions {
+
     }
 }
 
@@ -78,16 +98,26 @@ impl GlobalState  {
         
     }
 
-    fn addtxt(&mut self, x: u8, y: u8, txt: &str, &RGBCell)  {
+    fn addtxt(&mut self, x: u8, y: u8, txt: &str, color: &RGBCell)  {
         let mut i=0;
         while i < txt.len()  {
-            // todo
- //           if self.scr.real[x*]
+            if self.scr.real[y*self.dim.maxx+x+i]
+                == self.scr.buf[y*self.dim.maxx+x+i]  {
+                i +=1;
+                continue;
+            }
+            else  {
+                self.scr.buf[y*self.dim.maxx+x+i]               
+            }
+
         }
     }
 
-}
+    fn rawmode(&mut self, mode: bool) {
 
+    }
+
+}
 
 fn main()  {
     let mut x = GlobalState::new();

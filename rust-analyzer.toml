@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.completion.autoimport.enable": false,
+    "rust-analyzer.completion.postfix.enable": false
+    "rust-analyzer.completion.enable": false
+}
